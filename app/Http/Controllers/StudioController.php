@@ -87,7 +87,7 @@ class StudioController extends Controller implements HasMiddleware
     public function delete(Studio $studio): RedirectResponse
     {
         $count = DB::table('games')
-            ->where('idstudios', $studio->idstudios)
+            ->where('studio_id', $studio->id)
             ->count();
 
         if ($count > 0) {
