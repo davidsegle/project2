@@ -19,7 +19,7 @@
 				<td>
 					<a href="/studios/update/{{ $studio->id }}" class="btn btn-outline-primary btn-sm">Labot</a>
 					
-					<form action="/authors/delete/{{ $author->id }}" method="post" class="deletionform d-inline">
+					<form action="/studios/delete/{{ $studio->id }}" method="post" class="deletionform d-inline">
 						@csrf
 						<button type="submit" class="btn btn-outline-danger btn-sm">Dzēst</button>
 					</form>
