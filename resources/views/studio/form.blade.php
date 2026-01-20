@@ -26,6 +26,6 @@
 			{{ $studio->exists ? 'Atjaunot studiju' : 'Pievienot studiju' }}
 		</button>
 
-		
+		<a href="/genres" class="btn btn-primary">Atpakaļ</a>
 	</form>
 @endsection

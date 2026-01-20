@@ -9,6 +9,7 @@ use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
+use App\Http\Requests\GameRequest;
 
 class GameController extends Controller implements HasMiddleware
 {
@@ -47,43 +48,21 @@ class GameController extends Controller implements HasMiddleware
 		);
 	}
 	// create new Game entry
-	public function put(Request $request): RedirectResponse
+	public function put(GameRequest$request)
 	{
-		$validatedData = $request->validate([
-			'name' => 'required|min:3|max:256',
-			'studio_id' => 'required',
-			'genre_id' => 'required',
-			'description' => 'nullable',
-			'price' => 'nullable|numeric',
-			'year' => 'numeric',
-			'image' => 'nullable|image',
-			'display' => 'nullable',
-		]);
-		$game = new game();
-		$game->name = $validatedData['name'];
-		$game->studio_id = $validatedData['studio_id'];
-		$game->genre_id = $validatedData['genre_id'];
-		$game->description = $validatedData['description'];
-		$game->price = $validatedData['price'];
-		$game->year = $validatedData['year'];
-		$game->display = (bool) ($validatedData['display'] ?? false);
-		
-		if ($request->hasFile('image')) {
-		// šeit varat pievienot kodu, kas nodzēš veco bildi, ja pievieno jaunu
-			$uploadedFile = $request->file('image');
-			$extension = $uploadedFile->clientExtension();
-			$name = uniqid();
-			$game->image = $uploadedFile->storePubliclyAs(
-				'/',
-				$name . '.' . $extension,
-				'uploads'
-			);
-		}
+		$game = new Game();
+		$this->saveGameData($game, $request);
 
-		$game->save();
-		
 		return redirect('/games');
 	}
+
+	public function patch(Game $game, GameRequest $request)
+	{
+		$this->saveGameData($game, $request);
+
+		return redirect('/games/update/' . $game->id);
+	}
+
 	// display Game edit form
 	public function update(Game $game): View
 	{
@@ -97,44 +76,6 @@ class GameController extends Controller implements HasMiddleware
 			'genres' => $genres,
 		]);
 	}
-
-	// update Game data
-	public function patch(Game $game, Request $request): RedirectResponse
-	{
-		$validatedData = $request->validate([
-			'name' => 'required|min:3|max:256',
-			'studio_id' => 'required|integer',
-			'genre_id' => 'required|integer',
-			'description' => 'nullable|string',
-			'price' => 'nullable|numeric',
-			'year' => 'nullable|integer',
-			'display' => 'nullable',
-		]);
-
-		$game->name = $validatedData['name'];
-		$game->studio_id = $validatedData['studio_id'];
-		$game->genre_id = $validatedData['genre_id'];
-		$game->description = $validatedData['description'] ?? null;
-		$game->price = $validatedData['price'] ?? null;
-		$game->year = $validatedData['year'] ?? null;
-		$game->display = (bool) ($validatedData['display'] ?? false);
-		
-		if ($request->hasFile('image')) {
-		// šeit varat pievienot kodu, kas nodzēš veco bildi, ja pievieno jaunu
-			$uploadedFile = $request->file('image');
-			$extension = $uploadedFile->clientExtension();
-			$name = uniqid();
-			$game->image = $uploadedFile->storePubliclyAs(
-				'/',
-				$name . '.' . $extension,
-				'uploads'
-			);
-		}
-		
-		$game->save();
-
-		return redirect('/games/update/' . $game->id);
-	}
 	// delete Game
 	public function delete(Game $game): RedirectResponse
 	{
@@ -146,5 +87,34 @@ class GameController extends Controller implements HasMiddleware
 		$game->delete();
 		return redirect('/games');
 	}
+	// validate and save Game data
+	private function saveGameData(Game $game, GameRequest $request)
+	{
+		$validatedData = $request->validated();
+		
+
+		$game->fill($validatedData);
+		$game->display = (bool) ($validatedData['display'] ?? false);
+
+		if ($request->hasFile('image')) {
+			// ja bija vecs attēls, to var nodzēst
+			if ($game->image) {
+				@unlink(getcwd() . '/images/' . $game->image);
+			}
+
+			$uploadedFile = $request->file('image');
+			$extension = $uploadedFile->clientExtension();
+			$name = uniqid();
+
+			$game->image = $uploadedFile->storePubliclyAs(
+				'/',
+				$name . '.' . $extension,
+				'uploads'
+			);
+		}
+
+		$game->save();
+	}
+
 
 }

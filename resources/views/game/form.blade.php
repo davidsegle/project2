@@ -165,5 +165,6 @@
     <button type="submit" class="btn btn-primary">
         {{ $game->exists ? 'Atjaunot ierakstu' : 'Pievienot ierakstu' }}
     </button>
+	<a href="/genres" class="btn btn-primary">Atpakaļ</a>
 </form>
 @endsection
