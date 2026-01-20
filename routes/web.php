@@ -6,6 +6,10 @@ use App\Http\Controllers\StudioController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\PublicGameController;
+use App\Http\Controllers\DataController;
+
+
 
 Route::get('/', [HomeController::class, 'index']);
 //studio routes
@@ -33,4 +37,11 @@ Route::post('/genres/put', [GenreController::class, 'put']);
 Route::get('/genres/update/{genre}', [GenreController::class, 'update']);
 Route::post('/genres/patch/{genre}', [GenreController::class, 'patch']);
 Route::post('/genres/delete/{genre}', [GenreController::class, 'delete']);
-
+// Public JSON API for SPA
+Route::get('/api/games/featured', [PublicGameController::class, 'featured']);
+Route::get('/api/games/{game}', [PublicGameController::class, 'show']);
+Route::get('/api/games/{game}/similar', [PublicGameController::class, 'similar']);
+// Data/API
+Route::get('/data/get-top-games', [DataController::class, 'getTopGames']);
+Route::get('/data/get-game/{game}', [DataController::class, 'getGame']);
+Route::get('/data/get-related-games/{game}', [DataController::class, 'getRelatedGames']);

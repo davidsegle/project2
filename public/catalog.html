@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="lv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spēļu katalogs</title>
+
+  <!-- Tailwind Play CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React (CDN) -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+  <div id="app"></div>
+
+  <script>
+    "use strict";
+
+    const { useEffect, useMemo, useState } = React;
+
+    function Header({ onHome }) {
+      return (
+        React.createElement("header", { className: "bg-white border-b" },
+          React.createElement("div", { className: "max-w-5xl mx-auto px-4 py-4 flex items-center justify-between" },
+            React.createElement("button", {
+              onClick: onHome,
+              className: "text-xl font-bold tracking-tight hover:opacity-80"
+            }, "Spēļu katalogs"),
+            React.createElement("div", { className: "text-sm text-slate-600" }, "Publiskā lapa")
+          )
+        )
+      );
+    }
+
+    function Footer() {
+      return (
+        React.createElement("footer", { className: "border-t bg-white mt-10" },
+          React.createElement("div", { className: "max-w-5xl mx-auto px-4 py-6 text-sm text-slate-600" },
+            "Dāvids Egle, 2026"
+          )
+        )
+      );
+    }
+
+    function Card({ game, onSelect }) {
+      const imgUrl = game.image ? ("/images/" + game.image) : null;
+
+      return (
+        React.createElement("article", {
+          className: "bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-md transition cursor-pointer",
+          onClick: () => onSelect(game.id)
+        },
+          imgUrl
+            ? React.createElement("img", { src: imgUrl, alt: game.name, className: "w-full h-44 object-cover" })
+            : React.createElement("div", { className: "w-full h-44 bg-slate-100 flex items-center justify-center text-slate-400" }, "Nav attēla"),
+          React.createElement("div", { className: "p-4" },
+            React.createElement("h3", { className: "font-semibold text-lg" }, game.name),
+            React.createElement("p", { className: "text-sm text-slate-600 mt-1" },
+              (game.studio?.name ? game.studio.name : "—") + " • " + (game.genre?.name ? game.genre.name : "—")
+            ),
+            React.createElement("div", { className: "text-sm text-slate-700 mt-2 flex gap-3" },
+              React.createElement("span", null, game.year ? ("Gads: " + game.year) : "Gads: —"),
+              React.createElement("span", null, (game.price !== null && game.price !== undefined) ? ("Cena: €" + Number(game.price).toFixed(2)) : "Cena: —")
+            )
+          )
+        )
+      );
+    }
+
+    function HomeView({ items, onSelect }) {
+      return (
+        React.createElement("main", { className: "max-w-5xl mx-auto px-4 py-8" },
+          React.createElement("h1", { className: "text-2xl font-bold" }, "Ieteiktās spēles"),
+          React.createElement("p", { className: "text-slate-600 mt-1" }, "Izvēlies spēli, lai apskatītu pilnu informāciju."),
+          React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mt-6" },
+            items.map(g => React.createElement(Card, { key: g.id, game: g, onSelect }))
+          )
+        )
+      );
+    }
+
+    function DetailsView({ game, similar, onSelect, onHome }) {
+      const imgUrl = game.image ? ("/images/" + game.image) : null;
+
+      return (
+        React.createElement("main", { className: "max-w-5xl mx-auto px-4 py-8" },
+          React.createElement("div", { className: "flex items-center justify-between gap-4" },
+            React.createElement("h1", { className: "text-2xl font-bold" }, game.name),
+            React.createElement("button", {
+              onClick: onHome,
+              className: "inline-flex items-center rounded-full px-4 py-2 bg-slate-900 text-white hover:opacity-90"
+            }, "Atpakaļ")
+          ),
+
+          React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-5 gap-6 mt-6" },
+            React.createElement("div", { className: "md:col-span-2" },
+              imgUrl
+                ? React.createElement("img", { src: imgUrl, alt: game.name, className: "w-full rounded-2xl border object-cover" })
+                : React.createElement("div", { className: "w-full aspect-video bg-slate-100 rounded-2xl border flex items-center justify-center text-slate-400" }, "Nav attēla")
+            ),
+            React.createElement("div", { className: "md:col-span-3 bg-white rounded-2xl border p-5" },
+              React.createElement("div", { className: "text-slate-700" },
+                React.createElement("div", { className: "text-sm text-slate-600" }, "Studija: ", game.studio?.name ?? "—"),
+                React.createElement("div", { className: "text-sm text-slate-600 mt-1" }, "Žanrs: ", game.genre?.name ?? "—"),
+                React.createElement("div", { className: "text-sm text-slate-600 mt-1" }, "Gads: ", game.year ?? "—"),
+                React.createElement("div", { className: "text-sm text-slate-600 mt-1" },
+                  "Cena: ",
+                  (game.price !== null && game.price !== undefined) ? ("€" + Number(game.price).toFixed(2)) : "—"
+                )
+              ),
+              React.createElement("hr", { className: "my-4" }),
+              React.createElement("p", { className: "text-slate-700 whitespace-pre-line" },
+                game.description ? game.description : "Apraksts nav pievienots."
+              )
+            )
+          ),
+
+          React.createElement("section", { className: "mt-10" },
+            React.createElement("h2", { className: "text-xl font-bold" }, "Līdzīgas spēles"),
+            React.createElement("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-4 mt-4" },
+              similar.map(g => React.createElement(Card, { key: g.id, game: g, onSelect }))
+            )
+          )
+        )
+      );
+    }
+
+    function App() {
+      const [selectedId, setSelectedId] = useState(null);
+      const [featured, setFeatured] = useState([]);
+      const [selectedGame, setSelectedGame] = useState(null);
+      const [similar, setSimilar] = useState([]);
+      const [loading, setLoading] = useState(false);
+
+      async function loadFeatured() {
+        setLoading(true);
+        setSelectedGame(null);
+        setSimilar([]);
+        try {
+          const res = await fetch("/api/games/featured");
+          const data = await res.json();
+          setFeatured(data);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      async function loadDetails(id) {
+        setLoading(true);
+        try {
+          const [gameRes, simRes] = await Promise.all([
+            fetch("/api/games/" + id),
+            fetch("/api/games/" + id + "/similar")
+          ]);
+          const game = await gameRes.json();
+          const sim = await simRes.json();
+          setSelectedGame(game);
+          setSimilar(sim);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      useEffect(() => {
+        loadFeatured();
+      }, []);
+
+      useEffect(() => {
+        if (selectedId === null) return;
+        loadDetails(selectedId);
+      }, [selectedId]);
+
+      const onHome = () => {
+        setSelectedId(null);
+        loadFeatured();
+      };
+
+      return (
+        React.createElement("div", null,
+          React.createElement(Header, { onHome }),
+          loading
+            ? React.createElement("div", { className: "max-w-5xl mx-auto px-4 py-10 text-slate-600" }, "Ielādē...")
+            : (selectedId === null
+                ? React.createElement(HomeView, { items: featured, onSelect: setSelectedId })
+                : (selectedGame
+                    ? React.createElement(DetailsView, { game: selectedGame, similar, onSelect: setSelectedId, onHome })
+                    : React.createElement("div", { className: "max-w-5xl mx-auto px-4 py-10 text-slate-600" }, "Ielādē..."))
+              ),
+          React.createElement(Footer)
+        )
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("app")).render(React.createElement(App));
+  </script>
+</body>
+</html>
