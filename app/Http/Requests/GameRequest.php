@@ -20,18 +20,18 @@ class GameRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
-       return [
+	{
+		return [
 			'name' => 'required|min:3|max:256',
-			'author_id' => 'required',
-			'description' => 'nullable',
+			'studio_id' => 'required|integer|exists:studios,id',
+			'genre_id' => 'required|integer|exists:genres,id',
+			'description' => 'nullable|string',
 			'price' => 'nullable|numeric',
-			'year' => 'numeric',
+			'year' => 'nullable|integer',
 			'image' => 'nullable|image',
-			'display' => 'nullable',
+			'display' => 'nullable|boolean',
 		];
-
-    }
+	}
 	public function messages(): array
 	{
 		return [

@@ -6,6 +6,16 @@
 @if ($errors->any())
     <div class="alert alert-danger">Lūdzu, novērsiet radušās kļūdas!</div>
 @endif
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <b>Lūdzu, novērsiet radušās kļūdas!</b>
+        <ul class="mb-0 mt-2">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 
 <form method="post" action="{{ $game->exists ? '/games/patch/' . $game->id : '/games/put' }}" enctype="multipart/form-data">
     @csrf
